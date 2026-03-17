@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Nota PAU 2026</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      background: #e9f5ff;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculadora Nota PAU 2026</h1>
+
+    <label>Nota media de Bachillerato</label>
+    <input type="number" id="bach" step="0.01" min="0" max="10">
+
+    <h3>Fase obligatoria</h3>
+    <input type="number" placeholder="Lengua" id="lengua" step="0.01">
+    <input type="number" placeholder="Historia / Filosofía" id="historia" step="0.01">
+    <input type="number" placeholder="Idioma extranjero" id="idioma" step="0.01">
+    <input type="number" placeholder="Asignatura modalidad" id="modalidad" step="0.01">
+
+    <h3>Fase voluntaria</h3>
+    <div id="optativas"></div>
+    <button onclick="addOptativa()">Añadir asignatura</button>
+
+    <button onclick="calcular()">Calcular nota</button>
+
+    <div class="result" id="resultado"></div>
+  </div>
+
+  <script>
+    function addOptativa() {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <input type="number" placeholder="Nota" class="nota" step="0.01">
+        <select class="ponderacion">
+          <option value="0.1">0.1</option>
+          <option value="0.2">0.2</option>
+        </select>
+      `;
+      document.getElementById('optativas').appendChild(div);
+    }
+
+    function calcular() {
+      const bach = parseFloat(document.getElementById('bach').value) || 0;
+
+      const lengua = parseFloat(document.getElementById('lengua').value) || 0;
+      const historia = parseFloat(document.getElementById('historia').value) || 0;
+      const idioma = parseFloat(document.getElementById('idioma').value) || 0;
+      const modalidad = parseFloat(document.getElementById('modalidad').value) || 0;
+
+      const obligatoria = (lengua + historia + idioma + modalidad) / 4;
+
+      const notaAcceso = 0.6 * bach + 0.4 * obligatoria;
+
+      let ponderadas = [];
+
+      const notas = document.querySelectorAll('.nota');
+      const ponders = document.querySelectorAll('.ponderacion');
+
+      for (let i = 0; i < notas.length; i++) {
+        const n = parseFloat(notas[i].value);
+        const p = parseFloat(ponders[i].value);
+        if (n >= 5) {
+          ponderadas.push(n * p);
+        }
+      }
+
+      ponderadas.sort((a, b) => b - a);
+
+      const extra = (ponderadas[0] || 0) + (ponderadas[1] || 0);
+
+      const final = notaAcceso + extra;
+
+      document.getElementById('resultado').innerHTML = `
+        <strong>Nota de acceso:</strong> ${notaAcceso.toFixed(2)} / 10<br>
+        <strong>Nota final:</strong> ${final.toFixed(2)} / 14
+      `;
+    }
+  </script>
+</body>
+</html>
