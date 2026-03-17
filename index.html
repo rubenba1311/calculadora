@@ -6,43 +6,65 @@
   <title>Calculadora Nota PAU 2026</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #333;
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
     .container {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 750px;
+      margin: 40px auto;
+      background: #ffffffee;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      border-top: 5px solid #2575fc;
     }
     h1 {
       text-align: center;
+      color: #2575fc;
+      margin-bottom: 30px;
     }
     input, select, button {
       width: 100%;
-      padding: 10px;
-      margin: 5px 0 15px;
-      border-radius: 5px;
+      padding: 12px;
+      margin: 8px 0 18px;
+      border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 16px;
     }
     button {
-      background: #007bff;
+      background: #6a11cb;
       color: white;
       border: none;
+      font-weight: bold;
       cursor: pointer;
+      transition: background 0.3s;
     }
     button:hover {
-      background: #0056b3;
+      background: #2575fc;
     }
     .result {
-      background: #e9f5ff;
-      padding: 15px;
-      border-radius: 5px;
-      margin-top: 20px;
+      background: #e0f7ff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 25px;
+      font-size: 18px;
+      text-align: center;
+      border-left: 5px solid #2575fc;
+    }
+    .optativa-group {
+      display: flex;
+      gap: 10px;
+    }
+    .optativa-group input, .optativa-group select {
+      flex: 1;
+    }
+    .optativa-limit {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 15px;
     }
   </style>
 </head>
@@ -59,8 +81,9 @@
     <input type="number" placeholder="Idioma extranjero" id="idioma" step="0.01">
     <input type="number" placeholder="Asignatura modalidad" id="modalidad" step="0.01">
 
-    <h3>Fase voluntaria</h3>
+    <h3>Fase voluntaria (máx. 4 asignaturas)</h3>
     <div id="optativas"></div>
+    <div class="optativa-limit" id="optativa-limit-msg" style="display:none">Máximo de 4 asignaturas alcanzado</div>
     <button onclick="addOptativa()">Añadir asignatura</button>
 
     <button onclick="calcular()">Calcular nota</button>
@@ -69,16 +92,25 @@
   </div>
 
   <script>
+    let optativaCount = 0;
     function addOptativa() {
+      if(optativaCount >= 4){
+        document.getElementById('optativa-limit-msg').style.display = 'block';
+        return;
+      }
+      document.getElementById('optativa-limit-msg').style.display = 'none';
+
       const div = document.createElement('div');
+      div.classList.add('optativa-group');
       div.innerHTML = `
-        <input type="number" placeholder="Nota" class="nota" step="0.01">
+        <input type="number" placeholder="Nota" class="nota" step="0.01" min="0" max="10">
         <select class="ponderacion">
           <option value="0.1">0.1</option>
           <option value="0.2">0.2</option>
         </select>
       `;
       document.getElementById('optativas').appendChild(div);
+      optativaCount++;
     }
 
     function calcular() {
@@ -94,7 +126,6 @@
       const notaAcceso = 0.6 * bach + 0.4 * obligatoria;
 
       let ponderadas = [];
-
       const notas = document.querySelectorAll('.nota');
       const ponders = document.querySelectorAll('.ponderacion');
 
@@ -107,14 +138,16 @@
       }
 
       ponderadas.sort((a, b) => b - a);
-
       const extra = (ponderadas[0] || 0) + (ponderadas[1] || 0);
 
       const final = notaAcceso + extra;
 
+      let colorAcceso = notaAcceso >= 5 ? 'green' : 'red';
+      let colorFinal = final >= 5 ? 'green' : 'red';
+
       document.getElementById('resultado').innerHTML = `
-        <strong>Nota de acceso:</strong> ${notaAcceso.toFixed(2)} / 10<br>
-        <strong>Nota final:</strong> ${final.toFixed(2)} / 14
+        <strong style="color:${colorAcceso}">Nota de acceso:</strong> ${notaAcceso.toFixed(2)} / 10<br>
+        <strong style="color:${colorFinal}">Nota final:</strong> ${final.toFixed(2)} / 14
       `;
     }
   </script>
